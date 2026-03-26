@@ -24,14 +24,18 @@ These skills are installed and MUST be applied automatically. Never wait to be a
 
 | Task | Skill to load |
 |------|--------------|
-| Any React or Next.js code | `nextjs-app-router-patterns` + `vercel-react-best-practices` |
-| Any UI, layout, component | `shadcn` + `web-design-guidelines` + `vercel-composition-patterns` |
-| Supabase queries, schema, RLS | `supabase-postgres-best-practices` |
-| Deploying to Vercel | `deploy-to-vercel` |
-| Complex multi-step patterns | `using-superpowers` |
+| Any React or Next.js code | `next-best-practices` + `vercel-react-best-practices` |
+| Any UI, layout, component | `web-design-guidelines` + `vercel-composition-patterns` + `theme-factory` |
+| Component architecture decisions | `vercel-composition-patterns` |
+| Visual QA / design audit | `design-review` |
+| QA testing the running app | `qa` + `browse` |
+| Shipping / releasing | `ship` |
+| New capability needed | `find-skills` |
 | After writing/modifying code | `code-reviewer` (auto-delegate) |
 | After implementing features | `test-writer` (auto-delegate) |
 | Commits, branches, PRs | `git-manager` (auto-delegate) |
+
+> All skills and install commands: see `SKILLS.md`
 
 ## App Configuration — Central Source of Truth
 
