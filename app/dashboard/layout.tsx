@@ -14,6 +14,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex h-screen bg-muted/40 dark:bg-zinc-950">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:bg-background focus:text-foreground focus:text-sm focus:rounded-md focus:shadow">
+        Skip to main content
+      </a>
       {/* Sidebar — desktop */}
       <aside className="hidden md:flex md:flex-col md:w-56 shrink-0 p-3 pr-0">
         <div className="flex flex-col h-full rounded-xl border bg-background shadow-sm overflow-hidden">
@@ -43,11 +46,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
 
         {/* Page content */}
-        <div className="flex-1 min-h-0 rounded-xl border bg-background shadow-sm overflow-y-auto">
+        <main id="main-content" className="flex-1 min-h-0 rounded-xl border bg-background shadow-sm overflow-y-auto">
           <div className="p-6">
             {children}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   )

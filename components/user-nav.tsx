@@ -30,7 +30,7 @@ export async function UserNav() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full ring-2 ring-transparent hover:ring-border transition-all p-0" />
+          <Button variant="ghost" aria-label="Open user menu" className="relative h-8 w-8 rounded-full ring-2 ring-transparent hover:ring-border transition-all p-0" />
         }
       >
         <Avatar className="h-8 w-8">
@@ -56,13 +56,13 @@ export async function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/dashboard/profile" />}>
-          <User className="h-4 w-4" /> Profile
+          <User className="h-4 w-4" aria-hidden="true" /> Profile
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/dashboard/settings" />}>
-          <Settings className="h-4 w-4" /> Settings
+          <Settings className="h-4 w-4" aria-hidden="true" /> Settings
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/dashboard/settings?tab=billing" />}>
-          <CreditCard className="h-4 w-4" /> Billing
+          <CreditCard className="h-4 w-4" aria-hidden="true" /> Billing
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<span />}>

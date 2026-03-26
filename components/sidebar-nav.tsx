@@ -23,13 +23,14 @@ export function SidebarNav() {
       <div className="flex-1 px-3 space-y-0.5">
         {mainNav.map((item) => (
           <Link key={item.href} href={item.href}
+            aria-current={isActive(item.href, item.exact) ? 'page' : undefined}
             className={cn(
               'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
               isActive(item.href, item.exact)
                 ? 'bg-foreground text-background shadow-sm'
                 : 'text-muted-foreground hover:text-foreground hover:bg-accent'
             )}>
-            <item.icon className="h-4 w-4 shrink-0" />
+            <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             {item.label}
           </Link>
         ))}
@@ -37,8 +38,9 @@ export function SidebarNav() {
       <div className="px-3 pt-4 border-t space-y-0.5">
         {bottomNav.map((item) => (
           <Link key={item.href} href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-150">
-            <item.icon className="h-4 w-4 shrink-0" />
+            <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
             {item.label}
           </Link>
         ))}

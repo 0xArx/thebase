@@ -11,8 +11,8 @@ export function MobileNav() {
   const [open, setOpen] = useState(false)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden h-8 w-8" />}>
-        <Menu className="h-4 w-4" />
+      <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden h-8 w-8" aria-label="Open navigation" />}>
+        <Menu className="h-4 w-4" aria-hidden="true" />
       </SheetTrigger>
       <SheetContent side="left" className="w-56 p-0">
         <div className="h-14 flex items-center px-4 border-b">

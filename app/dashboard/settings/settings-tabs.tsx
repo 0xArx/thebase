@@ -50,8 +50,15 @@ function SettingsTabsInner({ user, profile, isStripeEnabled }: Props) {
     router.push('/')
   }
 
+  function handleTabChange(value: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value === 'account') params.delete('tab')
+    else params.set('tab', value)
+    router.push(`?${params.toString()}`, { scroll: false })
+  }
+
   return (
-    <Tabs defaultValue={searchParams.get('tab') ?? 'account'}>
+    <Tabs defaultValue={searchParams.get('tab') ?? 'account'} onValueChange={handleTabChange}>
       <TabsList className="mb-6 h-9">
         <TabsTrigger value="account" className="text-xs">Account</TabsTrigger>
         <TabsTrigger value="billing" className="text-xs">Billing</TabsTrigger>

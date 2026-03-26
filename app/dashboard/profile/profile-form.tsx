@@ -50,7 +50,7 @@ export function ProfileForm({ user, profile }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-sm">
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16 ring-2 ring-border">
-          {profile?.avatar_url && <AvatarImage src={profile.avatar_url} />}
+          {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
           <AvatarFallback className="bg-foreground text-background font-bold text-xl">{initials}</AvatarFallback>
         </Avatar>
         <div>
@@ -64,12 +64,12 @@ export function ProfileForm({ user, profile }: Props) {
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="full_name">Full name</Label>
-          <Input id="full_name" {...register('full_name')} placeholder="Jane Doe" className="h-10" />
+          <Input id="full_name" {...register('full_name')} placeholder="Jane Doe" autoComplete="name" className="h-10" />
           {errors.full_name && <p className="text-xs text-destructive">{errors.full_name.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label>Email</Label>
-          <Input value={user.email ?? ''} disabled className="h-10 bg-muted text-muted-foreground" />
+          <Label htmlFor="email-display">Email</Label>
+          <Input id="email-display" value={user.email ?? ''} disabled className="h-10 bg-muted text-muted-foreground" />
           <p className="text-xs text-muted-foreground">Contact support to change your email.</p>
         </div>
       </div>

@@ -34,13 +34,13 @@ export default function LoginPage() {
       </div>
       <form onSubmit={handleLogin} className="space-y-4">
         {error && (
-          <p className="text-sm text-destructive bg-destructive/8 border border-destructive/15 px-3 py-2 rounded-lg">
+          <p role="alert" aria-live="assertive" className="text-sm text-destructive bg-destructive/8 border border-destructive/15 px-3 py-2 rounded-lg">
             {error}
           </p>
         )}
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-sm">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com"
+          <Input id="email" type="email" placeholder="you@example.com" spellCheck={false}
             value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className="h-10" />
         </div>
         <div className="space-y-1.5">

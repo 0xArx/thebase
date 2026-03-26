@@ -10,7 +10,8 @@
 
 **The Base** is a production-ready startup template — a one-command foundation
 for any new product. It ships with authentication, a database, a UI system,
-and a live deployment, all wired together and ready to fork.
+billing, email, error tracking, rate limiting, OAuth, and a live deployment,
+all wired together and ready to fork.
 
 **Live URL:** https://the-base-0xarx.vercel.app
 **GitHub:** https://github.com/0xArx/the-base (private)
@@ -22,18 +23,77 @@ and a live deployment, all wired together and ready to fork.
 | Layer | Choice | Why |
 |-------|--------|-----|
 | Framework | Next.js 16 (App Router) | Server components, file routing, streaming |
-| UI | shadcn/ui + Tailwind v4 | Accessible, owned components — no black-box lib |
+| UI | shadcn/ui + Tailwind v4 + `@base-ui/react` | Accessible, owned components |
 | Auth + DB | Supabase (Postgres + Auth) | Full Postgres with RLS, real-time, self-hostable |
 | Hosting | Vercel | Zero-config deploys, edge network, preview URLs |
 | Language | TypeScript (strict) | End-to-end type safety |
-| AI Scripts | Anthropic SDK (`claude-opus-4-6`) | In-repo intelligence, adaptive thinking |
+| Email | Resend | Transactional email, activates when `RESEND_API_KEY` set |
+| Billing | Stripe | Checkout + portal, activates when `STRIPE_SECRET_KEY` set |
+| Errors | Sentry | Error tracking, activates when `NEXT_PUBLIC_SENTRY_DSN` set |
+| Rate Limiting | Upstash Redis (in-memory fallback) | `UPSTASH_REDIS_REST_URL` set → Redis; else Map |
+| AI Scripts | Anthropic SDK (`claude-opus-4-6`) | `npm run summarize`, adaptive thinking |
+
+---
+
+## CRITICAL: `@base-ui/react` — NOT Radix
+
+This project uses `@base-ui/react`, not Radix UI. The `asChild` prop **does not exist**.
+Use the `render` prop instead:
+
+```tsx
+// ❌ WRONG — asChild doesn't exist in @base-ui/react
+<DropdownMenuTrigger asChild><Button /></DropdownMenuTrigger>
+
+// ✅ CORRECT — use render prop
+<DropdownMenuTrigger render={<Button />}>...</DropdownMenuTrigger>
+```
+
+---
+
+## Central Config — `lib/config.ts`
+
+**All branding, URLs, and feature flags live here.** Import from config, never hardcode strings.
+
+```typescript
+import { config } from '@/lib/config'
+
+config.name          // 'The Base' (or NEXT_PUBLIC_APP_NAME)
+config.tagline       // 'Ship your startup in hours, not weeks.'
+config.description   // one-liner description
+config.url           // 'http://localhost:3000' (or NEXT_PUBLIC_APP_URL)
+config.logo.letter   // 'B' (or NEXT_PUBLIC_APP_LOGO_LETTER)
+config.twitter       // twitter handle
+config.github        // github repo URL
+config.links.docs    // '/dashboard/support'
+config.links.support // mailto: link (if NEXT_PUBLIC_SUPPORT_EMAIL set)
+
+// Feature flags — true when their env var is present
+config.features.email         // Boolean(RESEND_API_KEY)
+config.features.billing       // Boolean(STRIPE_SECRET_KEY)
+config.features.errorTracking // Boolean(NEXT_PUBLIC_SENTRY_DSN)
+config.features.githubOAuth   // NEXT_PUBLIC_GITHUB_OAUTH_ENABLED === 'true'
+config.features.googleOAuth   // NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED === 'true'
+config.features.rateLimiting  // Boolean(UPSTASH_REDIS_REST_URL)
+```
+
+**To fork/rebrand:** only change env vars — zero code changes.
 
 ---
 
 ## Environment Variables — Complete Picture
 
 All credentials live in `.env.local` (gitignored). The template is `.env.example`.
-The file is split into groups — here's what each group unlocks agentically:
+
+### App Identity
+| Variable | Default |
+|----------|---------|
+| `NEXT_PUBLIC_APP_NAME` | The Base |
+| `NEXT_PUBLIC_APP_TAGLINE` | Ship your startup in hours, not weeks. |
+| `NEXT_PUBLIC_APP_DESCRIPTION` | Auth, database, UI, billing, and deploy — all pre-wired. |
+| `NEXT_PUBLIC_APP_URL` | http://localhost:3000 |
+| `NEXT_PUBLIC_APP_LOGO_LETTER` | B |
+| `NEXT_PUBLIC_TWITTER_HANDLE` | — |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | — |
 
 ### Supabase
 | Variable | Purpose | Agentic Use |
@@ -62,10 +122,17 @@ The file is split into groups — here's what each group unlocks agentically:
 | `GITHUB_OWNER` | Username/org | API calls, repo operations |
 | `GITHUB_REPO` | Repo name | Targeted API calls |
 
-### Anthropic
-| Variable | Purpose | Agentic Use |
-|----------|---------|------------|
-| `ANTHROPIC_API_KEY` | Claude API | `npm run summarize`, in-app AI features |
+### Optional Integrations (activate by adding key)
+| Variable | Activates |
+|----------|-----------|
+| `RESEND_API_KEY` | Email sending (`config.features.email`) |
+| `STRIPE_SECRET_KEY` + `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Billing (`config.features.billing`) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook verification |
+| `NEXT_PUBLIC_SENTRY_DSN` | Error tracking (`config.features.errorTracking`) |
+| `NEXT_PUBLIC_GITHUB_OAUTH_ENABLED=true` | GitHub OAuth (`config.features.githubOAuth`) |
+| `NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED=true` | Google OAuth (`config.features.googleOAuth`) |
+| `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Redis rate limiting (falls back to in-memory) |
+| `ANTHROPIC_API_KEY` | `npm run summarize` |
 
 ---
 
@@ -73,10 +140,13 @@ The file is split into groups — here's what each group unlocks agentically:
 
 ### Route Map
 ```
-/                          → app/page.tsx           — public landing page
-/login                     → app/(auth)/login/       — email/password sign-in
-/signup                    → app/(auth)/signup/      — account creation
-/dashboard                 → app/dashboard/          — protected user area
+/                          → app/page.tsx                     — public landing page
+/login                     → app/(auth)/login/                — email/password sign-in
+/signup                    → app/(auth)/signup/               — account creation
+/dashboard                 → app/dashboard/page.tsx           — protected home
+/dashboard/settings        → app/dashboard/settings/          — settings (URL tabs)
+/dashboard/profile         → app/dashboard/profile/           — profile page
+/dashboard/support         → app/dashboard/support/           — help & support
 ```
 
 ### Auth Flow
@@ -103,6 +173,26 @@ Never mix these. Mixing causes session issues and security holes.
 - **Server components** fetch directly via `lib/supabase/server.ts` — no loading states, no useEffect
 - **Client components** use `lib/supabase/client.ts` for mutations only (auth, form submits)
 - After any auth change: always call `router.refresh()` to revalidate server component cache
+
+### UI Layout
+```
+Dashboard layout (app/dashboard/layout.tsx):
+  ├─ Sidebar card (md+): Dashboard, Features, Help & Support
+  └─ Topbar card: ThemeToggle + UserNav (avatar dropdown)
+       └─ UserNav dropdown: Profile, Settings, Billing, Sign out
+            ├─ Billing → /dashboard/settings?tab=billing
+            ├─ Profile → /dashboard/profile
+            └─ Settings → /dashboard/settings
+
+Settings page (/dashboard/settings):
+  └─ URL-driven tabs (?tab= parameter)
+       ├─ Account (default)
+       ├─ Billing (Stripe portal or "not configured" if no key)
+       ├─ Notifications
+       └─ Danger zone (delete account)
+```
+
+**Important:** Profile, Settings, and Billing are accessed ONLY via the avatar dropdown. They are NOT in the sidebar.
 
 ---
 
@@ -136,6 +226,28 @@ npx supabase db push   # against production (uses SUPABASE_ACCESS_TOKEN)
 
 ---
 
+## Available Scripts
+
+| Command | What it does |
+|---------|-------------|
+| `npm run dev` | Dev server on :3000 |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run summarize` | Stream AI summary of the repo (needs `ANTHROPIC_API_KEY`) |
+| `npm run bootstrap <name>` | Spin up new GitHub + Supabase + Vercel project in one command |
+| `npm run db:types` | Regenerate `types/database.types.ts` from Supabase schema |
+| `npm run db:push` | Push migrations to production Supabase |
+
+### Bootstrap Script
+```bash
+npm run bootstrap my-new-app
+# Creates: GitHub repo → Supabase project (waits for ACTIVE_HEALTHY) → Vercel project
+# Injects all env vars automatically
+# Writes ready .env.local for the new project
+```
+
+---
+
 ## Setup From Scratch
 
 ```bash
@@ -150,8 +262,7 @@ cp .env.example .env.local
 # Fill in every value in .env.local
 
 # 4. Apply DB migrations
-npx supabase login    # uses SUPABASE_ACCESS_TOKEN
-npx supabase db push
+npx supabase db push   # uses SUPABASE_ACCESS_TOKEN
 
 # 5. Dev server
 npm run dev           # http://localhost:3000
@@ -166,26 +277,10 @@ git push origin main
   └─ Vercel auto-deploys to https://the-base-0xarx.vercel.app
      └─ Preview URL created for every branch push
 
-Manual deploy:
-  curl -X POST https://api.vercel.com/v13/deployments \
-    -H "Authorization: Bearer $VERCEL_TOKEN" \
-    -d '{"name":"the-base","gitSource":{"type":"github","ref":"main"}}'
-
 Env vars on Vercel:
   Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
   via Vercel dashboard or API — never hardcode in source.
 ```
-
----
-
-## Available Scripts
-
-| Command | What it does |
-|---------|-------------|
-| `npm run dev` | Dev server on :3000 |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint |
-| `npm run summarize` | Stream AI summary of the repo (needs `ANTHROPIC_API_KEY`) |
 
 ---
 
@@ -195,6 +290,7 @@ Env vars on Vercel:
 ```typescript
 // app/dashboard/my-feature/page.tsx
 import { createClient } from '@/lib/supabase/server'
+import { config } from '@/lib/config'
 
 export default async function MyFeaturePage() {
   const supabase = await createClient()
@@ -224,6 +320,16 @@ alter table public.X enable row level security;
 create policy "..." on public.X for select using (auth.uid() = user_id);
 ```
 
+### Conditional feature (integration)
+```typescript
+import { config } from '@/lib/config'
+
+// Only render billing UI if Stripe is configured
+if (config.features.billing) {
+  // show billing UI
+}
+```
+
 ---
 
 ## Skills to Use in This Repo
@@ -233,6 +339,10 @@ create policy "..." on public.X for select using (auth.uid() = user_id);
 | React/Next.js code | `vercel-react-best-practices` |
 | Component architecture | `vercel-composition-patterns` |
 | UI / layout / accessibility | `web-design-guidelines` |
+| Deployment | `deploy-to-vercel` |
+| Supabase schema / RLS | `supabase-postgres-best-practices` |
+| Next.js App Router patterns | `nextjs-app-router-patterns` |
+| shadcn components | `shadcn` |
 | After writing code | `code-reviewer` (auto-delegated) |
 | After implementing features | `test-writer` (auto-delegated) |
 | Git commits, PRs | `git-manager` (auto-delegated) |
@@ -245,18 +355,28 @@ create policy "..." on public.X for select using (auth.uid() = user_id);
 
 | File | Role |
 |------|------|
-| `middleware.ts` | Auth guard — all route protection lives here |
+| `lib/config.ts` | **Central source of truth** — all branding, URLs, feature flags |
+| `middleware.ts` | Auth guard + rate limiting — all route protection lives here |
 | `lib/supabase/client.ts` | Browser Supabase client |
 | `lib/supabase/server.ts` | Server Supabase client (cookies-aware) |
+| `lib/email.ts` | Resend wrapper — no-ops if `RESEND_API_KEY` not set |
+| `lib/stripe.ts` | Stripe client — `isStripeEnabled` flag + helpers |
+| `lib/rate-limit.ts` | Rate limiter — in-memory fallback, Redis when configured |
 | `app/page.tsx` | Landing page |
+| `app/(auth)/layout.tsx` | Two-column auth layout (dark brand panel + form) |
 | `app/(auth)/login/page.tsx` | Login form |
 | `app/(auth)/signup/page.tsx` | Signup form |
-| `app/dashboard/layout.tsx` | Server-side auth check for dashboard |
+| `app/dashboard/layout.tsx` | Dashboard shell: sidebar + topbar |
 | `app/dashboard/page.tsx` | Dashboard home |
+| `app/dashboard/settings/page.tsx` | Settings with URL-driven tabs |
+| `app/dashboard/profile/page.tsx` | Profile page |
+| `components/user-nav.tsx` | Avatar dropdown: Profile, Settings, Billing, Sign out |
+| `components/sidebar-nav.tsx` | Sidebar links: Dashboard, Features, Help & Support |
 | `components/logout-button.tsx` | Client sign-out |
-| `supabase/migrations/` | All schema changes |
+| `scripts/summarize.ts` | AI project summary (streams from claude-opus-4-6) |
+| `scripts/bootstrap.ts` | One-command new project spinner |
+| `supabase/migrations/` | All schema changes — always add new files here |
 | `.env.example` | Full env var reference |
-| `scripts/summarize.ts` | AI project summary script |
 | `PLAYBOOK.md` | Developer guide (long form) |
 | `CLAUDE.md` | Claude Code guidance |
 

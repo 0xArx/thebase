@@ -32,7 +32,7 @@ export default function SignupPage() {
     return (
       <div className="text-center space-y-5">
         <div className="h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-400" />
+          <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-400" aria-hidden="true" />
         </div>
         <div>
           <h2 className="text-xl font-bold">Check your email</h2>
@@ -54,13 +54,13 @@ export default function SignupPage() {
       </div>
       <form onSubmit={handleSignup} className="space-y-4">
         {error && (
-          <p className="text-sm text-destructive bg-destructive/8 border border-destructive/15 px-3 py-2 rounded-lg">
+          <p role="alert" aria-live="assertive" className="text-sm text-destructive bg-destructive/8 border border-destructive/15 px-3 py-2 rounded-lg">
             {error}
           </p>
         )}
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-sm">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com"
+          <Input id="email" type="email" placeholder="you@example.com" spellCheck={false}
             value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" className="h-10" />
         </div>
         <div className="space-y-1.5">

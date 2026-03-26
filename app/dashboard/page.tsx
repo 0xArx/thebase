@@ -43,7 +43,7 @@ export default async function DashboardPage() {
         ].map((s) => (
           <Card key={s.label} className="border-0 shadow-none bg-muted/50 dark:bg-muted/20">
             <CardContent className="p-4">
-              <s.icon className={`h-4 w-4 ${s.color} mb-3`} />
+              <s.icon className={`h-4 w-4 ${s.color} mb-3`} aria-hidden="true" />
               <p className="text-xs text-muted-foreground">{s.label}</p>
               <p className="text-sm font-semibold mt-0.5">{s.value}</p>
             </CardContent>
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
               <p className="text-sm font-medium">{link.label}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{link.desc}</p>
             </div>
-            <ArrowUpRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground transition-colors shrink-0" />
+            <ArrowUpRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground transition-colors shrink-0" aria-hidden="true" />
           </Link>
         ))}
       </div>

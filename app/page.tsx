@@ -26,7 +26,7 @@ export default function LandingPage() {
         </Link>
         <div className="flex items-center gap-2">
           <Link href="/login"><Button variant="ghost" size="sm" className="text-sm h-8">Sign in</Button></Link>
-          <Link href="/signup"><Button size="sm" className="text-sm h-8 gap-1.5">Get started <ArrowRight className="h-3.5 w-3.5" /></Button></Link>
+          <Link href="/signup"><Button size="sm" className="text-sm h-8 gap-1.5">Get started <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></Button></Link>
         </div>
       </nav>
 
@@ -44,7 +44,7 @@ export default function LandingPage() {
           {config.description}
         </p>
         <div className="flex items-center gap-3">
-          <Link href="/signup"><Button size="lg" className="gap-2 h-11 px-6">Start for free <ArrowRight className="h-4 w-4" /></Button></Link>
+          <Link href="/signup"><Button size="lg" className="gap-2 h-11 px-6">Start for free <ArrowRight className="h-4 w-4" aria-hidden="true" /></Button></Link>
           <Link href="/login"><Button size="lg" variant="outline" className="h-11 px-6">Sign in</Button></Link>
         </div>
       </section>
@@ -55,7 +55,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border rounded-2xl overflow-hidden border shadow-sm">
             {features.map((f) => (
               <div key={f.title} className="bg-background p-6 hover:bg-muted/30 transition-colors group">
-                <f.icon className="h-5 w-5 mb-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <f.icon className="h-5 w-5 mb-4 text-muted-foreground group-hover:text-foreground transition-colors" aria-hidden="true" />
                 <h3 className="text-sm font-semibold mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
@@ -72,7 +72,7 @@ export default function LandingPage() {
             <p className="text-background/50 text-sm mb-6">Create your account and have a live app in minutes.</p>
             <Link href="/signup">
               <Button size="lg" variant="secondary" className="gap-2 h-11 px-6">
-                Create your account <ArrowRight className="h-4 w-4" />
+                Create your account <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Button>
             </Link>
           </div>
