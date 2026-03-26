@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     default: process.env.NEXT_PUBLIC_APP_NAME ?? 'The Base',
     template: `%s · ${process.env.NEXT_PUBLIC_APP_NAME ?? 'The Base'}`,
   },
-  description: 'The complete startup foundation — ready to ship.',
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION ?? 'The complete startup foundation.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

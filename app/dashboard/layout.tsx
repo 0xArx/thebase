@@ -5,46 +5,49 @@ import { SidebarNav } from '@/components/sidebar-nav'
 import { UserNav } from '@/components/user-nav'
 import { MobileNav } from '@/components/mobile-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { config } from '@/lib/config'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'The Base'
-
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen bg-muted/40 dark:bg-zinc-950">
       {/* Sidebar — desktop */}
-      <aside className="hidden md:flex md:flex-col md:w-60 border-r bg-background shrink-0">
-        <div className="h-16 flex items-center px-4 border-b">
-          <Link href="/dashboard" className="font-bold text-lg tracking-tight">
-            {appName}
-          </Link>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          <SidebarNav />
+      <aside className="hidden md:flex md:flex-col md:w-56 shrink-0 p-3 pr-0">
+        <div className="flex flex-col h-full rounded-xl border bg-background shadow-sm overflow-hidden">
+          <div className="h-14 flex items-center px-4 border-b shrink-0">
+            <Link href="/dashboard" className="flex items-center gap-2 font-bold text-sm tracking-tight">
+              <div className="h-6 w-6 rounded-md bg-foreground flex items-center justify-center shrink-0">
+                <span className="text-background text-xs font-black">{config.logo.letter}</span>
+              </div>
+              {config.name}
+            </Link>
+          </div>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <SidebarNav />
+          </div>
         </div>
       </aside>
 
       {/* Main area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden p-3 gap-3">
         {/* Top bar */}
-        <header className="h-16 border-b flex items-center justify-between px-4 md:px-6 shrink-0 bg-background">
-          <div className="flex items-center gap-2">
-            <MobileNav />
-            {/* Breadcrumb placeholder — pages can override via slot if needed */}
-          </div>
-          <div className="flex items-center gap-2">
+        <header className="flex items-center justify-between h-14 px-4 rounded-xl border bg-background shadow-sm shrink-0">
+          <MobileNav />
+          <div className="flex items-center gap-1">
             <ThemeToggle />
             <UserNav />
           </div>
         </header>
 
-        {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+        {/* Page content */}
+        <div className="flex-1 min-h-0 rounded-xl border bg-background shadow-sm overflow-y-auto">
+          <div className="p-6">
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   )

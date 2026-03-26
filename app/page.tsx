@@ -1,126 +1,94 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { ArrowRight, Zap, ShieldCheck, Database, Palette, Rocket, Code2 } from 'lucide-react'
+import { config } from '@/lib/config'
 
 const features = [
-  {
-    title: 'Authentication',
-    description: 'Email/password login out of the box via Supabase Auth. Session management handled automatically.',
-    icon: '🔐',
-  },
-  {
-    title: 'Database',
-    description: 'Postgres database with row-level security. Type-safe queries and real-time subscriptions included.',
-    icon: '🗄️',
-  },
-  {
-    title: 'UI Components',
-    description: 'Accessible shadcn/ui components built on Radix primitives. Fully customizable to your brand.',
-    icon: '🎨',
-  },
-  {
-    title: 'Deployed on Vercel',
-    description: 'Edge network, automatic CI/CD from GitHub, preview deploys on every PR. Zero-config performance.',
-    icon: '⚡',
-  },
-  {
-    title: 'TypeScript First',
-    description: 'End-to-end type safety from database schema to UI components. Catch bugs at compile time.',
-    icon: '🛡️',
-  },
-  {
-    title: 'Production Ready',
-    description: 'Middleware-based auth guards, server components, and optimized bundle. Ship from day one.',
-    icon: '🚀',
-  },
+  { icon: ShieldCheck, title: 'Auth built in', desc: 'Email, password, and OAuth — session management handled by Supabase.' },
+  { icon: Database, title: 'Postgres + RLS', desc: 'Full relational database with row-level security. Safe by default.' },
+  { icon: Palette, title: 'shadcn/ui', desc: 'Accessible components you own. Customize everything.' },
+  { icon: Zap, title: 'Instant deploy', desc: 'Every push to main ships to production. Preview URLs on every branch.' },
+  { icon: Code2, title: 'TypeScript first', desc: 'End-to-end type safety from DB schema to UI components.' },
+  { icon: Rocket, title: 'Agentic ready', desc: 'Bootstrap any project with one command. Full CLI/AI control.' },
 ]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight">The Base</span>
-            <Badge variant="secondary" className="text-xs">v1.0</Badge>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 flex items-center justify-between h-14 px-6 border-b bg-background/90 backdrop-blur-sm">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-md bg-foreground flex items-center justify-center">
+            <span className="text-background text-xs font-black">{config.logo.letter}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">Sign in</Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm">Get started</Button>
-            </Link>
-          </div>
+          <span className="font-bold text-sm">{config.name}</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/login"><Button variant="ghost" size="sm" className="text-sm h-8">Sign in</Button></Link>
+          <Link href="/signup"><Button size="sm" className="text-sm h-8 gap-1.5">Get started <ArrowRight className="h-3.5 w-3.5" /></Button></Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20 text-center">
-        <Badge variant="outline" className="mb-6 text-sm px-4 py-1">
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24">
+        <Badge variant="outline" className="mb-6 text-xs px-3 py-1 gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block" />
           Next.js · Supabase · shadcn/ui · Vercel
         </Badge>
-        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-gray-900 mb-6 leading-tight">
-          Your startup&apos;s
-          <br />
-          <span className="text-gray-400">foundation, complete.</span>
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.06] mb-6 max-w-3xl">
+          {config.tagline.split(' in ')[0]} in<br />
+          <span className="text-muted-foreground">hours, not weeks.</span>
         </h1>
-        <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
-          The Base gives you auth, database, UI, and hosting in one opinionated template.
-          Stop configuring. Start building what matters.
+        <p className="text-lg text-muted-foreground max-w-md mx-auto mb-10 leading-relaxed">
+          {config.description}
         </p>
-        <div className="flex items-center justify-center gap-4">
-          <Link href="/signup">
-            <Button size="lg" className="px-8">Start for free</Button>
-          </Link>
-          <Link href="/login">
-            <Button size="lg" variant="outline" className="px-8">Sign in</Button>
-          </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/signup"><Button size="lg" className="gap-2 h-11 px-6">Start for free <ArrowRight className="h-4 w-4" /></Button></Link>
+          <Link href="/login"><Button size="lg" variant="outline" className="h-11 px-6">Sign in</Button></Link>
         </div>
       </section>
 
-      <Separator />
-
-      {/* Features */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Everything you need, nothing you don&apos;t</h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Each piece chosen for production use at scale, not just demos.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature) => (
-            <Card key={feature.title} className="border border-gray-100 hover:border-gray-200 transition-colors">
-              <CardContent className="p-6">
-                <div className="text-3xl mb-4">{feature.icon}</div>
-                <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+      {/* Features grid */}
+      <section className="px-6 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border rounded-2xl overflow-hidden border shadow-sm">
+            {features.map((f) => (
+              <div key={f.title} className="bg-background p-6 hover:bg-muted/30 transition-colors group">
+                <f.icon className="h-5 w-5 mb-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <h3 className="text-sm font-semibold mb-2">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
-
-      <Separator />
 
       {/* CTA */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to build?</h2>
-        <p className="text-gray-500 text-lg mb-8">Create your account and get started in minutes.</p>
-        <Link href="/signup">
-          <Button size="lg" className="px-10">Create your account</Button>
-        </Link>
+      <section className="px-6 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="rounded-2xl border bg-foreground text-background px-8 py-12 text-center">
+            <h2 className="text-2xl font-bold mb-2">Ready to build?</h2>
+            <p className="text-background/50 text-sm mb-6">Create your account and have a live app in minutes.</p>
+            <Link href="/signup">
+              <Button size="lg" variant="secondary" className="gap-2 h-11 px-6">
+                Create your account <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex items-center justify-between">
-          <span className="font-semibold text-gray-900">The Base</span>
-          <p className="text-gray-400 text-sm">Built with Next.js, Supabase, shadcn/ui, and Vercel.</p>
+      <footer className="border-t px-6 py-6">
+        <div className="max-w-4xl mx-auto flex items-center justify-between text-xs text-muted-foreground">
+          <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
+            <div className="h-5 w-5 rounded bg-foreground flex items-center justify-center">
+              <span className="text-background text-[10px] font-black">{config.logo.letter}</span>
+            </div>
+            {config.name}
+          </Link>
+          <span>Built with Next.js · Supabase · shadcn/ui · Vercel</span>
         </div>
       </footer>
     </div>
