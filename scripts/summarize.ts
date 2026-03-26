@@ -9,29 +9,57 @@
  *   npx tsx scripts/summarize.ts
  *   npm run summarize
  *
- * Requires: ANTHROPIC_API_KEY in environment (or .env.local)
+ * Requires: ANTHROPIC_API_KEY — loaded automatically from .env.local
  */
 
 import Anthropic from '@anthropic-ai/sdk'
 import fs from 'fs'
 import path from 'path'
 
-const ROOT = path.resolve(import.meta.dirname, '..')
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
+
+// Auto-load .env.local (Next.js convention — never committed)
+function loadEnv() {
+  const envPath = path.join(ROOT, '.env.local')
+  try {
+    const lines = fs.readFileSync(envPath, 'utf-8').split('\n')
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#')) continue
+      const eqIdx = trimmed.indexOf('=')
+      if (eqIdx === -1) continue
+      const key = trimmed.slice(0, eqIdx).trim()
+      const value = trimmed.slice(eqIdx + 1).trim()
+      if (key && !(key in process.env)) {
+        process.env[key] = value
+      }
+    }
+  } catch {
+    // .env.local not found — rely on shell environment
+  }
+}
+
+loadEnv()
 
 function readFile(rel: string): string {
-  const full = path.join(ROOT, rel)
   try {
-    return fs.readFileSync(full, 'utf-8')
+    return fs.readFileSync(path.join(ROOT, rel), 'utf-8')
   } catch {
-    return `[file not found: ${rel}]`
+    return `[not found: ${rel}]`
   }
 }
 
 function dirTree(dir: string, depth = 0, maxDepth = 2): string {
   if (depth > maxDepth) return ''
-  const entries = fs.readdirSync(dir, { withFileTypes: true })
+  let entries: fs.Dirent[]
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true })
+  } catch {
+    return ''
+  }
+  const skip = new Set(['node_modules', '.git', '.next', '.claude'])
   return entries
-    .filter((e) => !['node_modules', '.git', '.next', '.claude'].includes(e.name))
+    .filter((e) => !skip.has(e.name))
     .map((e) => {
       const indent = '  '.repeat(depth)
       if (e.isDirectory()) {
@@ -46,7 +74,7 @@ async function main() {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     console.error('Error: ANTHROPIC_API_KEY is not set.')
-    console.error('Add it to your environment or to .env.local and re-run.')
+    console.error('Add it to .env.local:\n  ANTHROPIC_API_KEY=sk-ant-...')
     process.exit(1)
   }
 
@@ -66,6 +94,9 @@ ${readFile('CLAUDE.md')}
 ### PLAYBOOK.md
 ${readFile('PLAYBOOK.md')}
 
+### .env.example
+${readFile('.env.example')}
+
 ### package.json
 ${readFile('package.json')}
 
@@ -78,7 +109,7 @@ ${readFile('lib/supabase/client.ts')}
 ### lib/supabase/server.ts
 ${readFile('lib/supabase/server.ts')}
 
-### app/page.tsx (landing)
+### app/page.tsx
 ${readFile('app/page.tsx')}
 
 ### app/(auth)/login/page.tsx
@@ -106,12 +137,13 @@ Your summary should be structured, precise, and actionable — covering:
 2. The complete tech stack and why each piece was chosen
 3. The app architecture (routes, auth flow, data flow)
 4. The database schema and security model
-5. How to set it up locally (env vars, migrations, dev server)
-6. The deployment pipeline
-7. The exact next steps a new developer should take to add their first feature
+5. Environment variables — what each group controls and why the admin tokens matter
+6. How to set it up locally (env vars, migrations, dev server)
+7. The deployment pipeline
+8. The exact next steps a new developer should take to add their first feature
 
-Write in markdown. Be concise but complete. Use headers, bullet points, and code blocks where useful.
-Do not include the raw file contents — synthesize them into clear explanations.`,
+Write in markdown. Be concise but complete. Use headers, bullet points, and code blocks.
+Do not repeat raw file contents — synthesize them into clear explanations.`,
     messages: [
       {
         role: 'user',
@@ -120,7 +152,6 @@ Do not include the raw file contents — synthesize them into clear explanations
     ],
   })
 
-  // Stream text deltas — skip thinking blocks
   for await (const event of stream) {
     if (
       event.type === 'content_block_delta' &&
@@ -131,11 +162,8 @@ Do not include the raw file contents — synthesize them into clear explanations
   }
 
   const final = await stream.finalMessage()
-  const inputTokens = final.usage.input_tokens
-  const outputTokens = final.usage.output_tokens
-
-  console.log('\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-  console.log(`  Tokens: ${inputTokens.toLocaleString()} in · ${outputTokens.toLocaleString()} out`)
+  console.log(`\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`)
+  console.log(`  ${final.usage.input_tokens.toLocaleString()} in · ${final.usage.output_tokens.toLocaleString()} out tokens`)
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
 }
 
